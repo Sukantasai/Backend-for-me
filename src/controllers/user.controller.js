@@ -16,8 +16,17 @@ const registerUser = asyncHandler(async(req, res)=> {
     // return response
 
 
+
+    // extract all the datapoint from the body
+
+
     const {fullname, email, username, password} = req.body
-    console.log("email: ", email);
+    // console.log("email: ", email);
+    // console.log(req.body);
+    
+
+    // check all the points is not empty?
+
 
     // if(fullname === ""){
     //     throw new ApiError(400,"fullname is required")
@@ -30,18 +39,37 @@ const registerUser = asyncHandler(async(req, res)=> {
     ) {
         throw new ApiError(400, "All fields are required")
     }
+
+
+
+    // check username and emnil are already exists or not?
     
-    const existedUser =  User.findOne({
+    const existedUser = await User.findOne({
         $or: [{ username } , { email }]
     })
     // console.log("existedUser: ", existedUser);
+
+    // if already exists send the error
     
     if (existedUser){
         throw new ApiError(409, "User with email or username exists")
     }
+    // console.log(req.files);
+    
 
     const avatarLocalPath=  req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.file?.coverImage[0]?.path;
+    // const coverImageLocalPath = req.file?.coverImage[0]?.path;
+
+    let coverImageLocalPath;
+    if (req.files && Array.isArray(req.files.coverImage)&& req.files.coverImage.length > 0) {
+        coverImageLocalPath = req.files.coverImage[0].path
+    }
+
+
+
+
+    // console.log(req.file);
+    
 
     if(!avatarLocalPath){
         throw new ApiError(400, "Avatar file is require")
@@ -70,7 +98,7 @@ const registerUser = asyncHandler(async(req, res)=> {
     }
 
     return res.status(201).json(
-        new ApiResponce(200, createdUser, "User registered sucessesfully")
+        new ApiResponse(200, createdUser, "User registered sucessesfully")
     )
 
 })
